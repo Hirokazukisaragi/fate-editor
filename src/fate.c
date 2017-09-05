@@ -10,6 +10,8 @@
 void openfail(void);
 char *inputLine(void);
 void writeLine(int lineNum);
+void deleteLine(int lineNum);
+
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
@@ -22,10 +24,17 @@ int main(int argc,char *argv[]){
     openfail();
   }
   while(1){
-    printf("書き込む行を入力してください:");
+    rewind(fp);
+    printf("please input line number(exit :q):");
     fgets(rowTmp,MAX_ROW,stdin);
     if(!strcmp(rowTmp,":q\n")){
       break;
+    }
+    if(!strcmp(rowTmp,":d\n")){
+      fgets(rowTmp,MAX_ROW,stdin);
+      sscanf(rowTmp,"%d",&ROW_NUM);
+      deleteLine(ROW_NUM);
+      continue;
     }
     sscanf(rowTmp,"%d",&ROW_NUM);
     write = inputLine();
@@ -59,6 +68,19 @@ void writeLine(int lineNum){
     }
   }
   fwrite(WRITE_LINE,sizeof(char),strlen(WRITE_LINE),fp);
+}
+
+void deleteLine(int lineNum){
+  int i;
+  char dummy[ONE_LINE];
+  for(i=0;i != lineNum;i++){
+    fgets(dummy,ONE_LINE,fp);
+    if(feof(fp)){
+      break;
+    }
+  }
+  //未実装
+  
 }
 
 void openfail(void){
