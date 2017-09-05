@@ -20,9 +20,12 @@ int main(int argc,char *argv[]){
   char rowTmp[MAX_ROW];
   int ROW_NUM;
   int lineNum = 0;
-  if((fp = fopen(argv[1],"a+")) == NULL){
-    openfail();
+  if((fp = fopen(argv[1],"r+")) == NULL){
+    if((fp = fopen(argv[1],"w+")) == NULL){
+      openfail();
+    }
   }
+  fseek(fp,0,SEEK_SET);
   while(1){
     rewind(fp);
     printf("please input line number(exit :q):");
@@ -33,6 +36,7 @@ int main(int argc,char *argv[]){
     if(!strcmp(rowTmp,":d\n")){
       fgets(rowTmp,MAX_ROW,stdin);
       sscanf(rowTmp,"%d",&ROW_NUM);
+      fseek(fp,0,SEEK_SET);
       deleteLine(ROW_NUM);
       continue;
     }
@@ -63,7 +67,7 @@ void writeLine(int lineNum){
   char dummy[ONE_LINE];
   for(int i=0;i != lineNum;i++){
     fgets(dummy,ONE_LINE,fp);
-    if(feof(fp)){
+    if(!feof(fp)){
       break;
     }
   }
@@ -71,15 +75,41 @@ void writeLine(int lineNum){
 }
 
 void deleteLine(int lineNum){
-  int i;
+  int i=0,w=0,nl=1,size=0;
+  long debugi = 0;
+  fseek(fp,0,SEEK_SET);
+  ftell(fp);
+  printf("del=%d\n ftell=%ld\n",lineNum,debugi);
   char dummy[ONE_LINE];
-  for(i=0;i != lineNum;i++){
-    fgets(dummy,ONE_LINE,fp);
-    if(feof(fp)){
+  strcpy(dummy,"\r\n");
+  //rewind(fp);
+  while(1){
+    w = fgetc(fp);
+    
+    if(w == '\n'){
+      nl++;
+    }
+    if(nl == lineNum){
+      printf("deleting=%d,now=%d\n",lineNum,i);
+      fseek(fp,0,SEEK_SET);
+      fseek(fp,i,SEEK_SET);
+      debugi = ftell(fp);
+      //printf("%s",dummy);
+      size = strlen(dummy) + 1;
+      //dummy[size-1] = '\r';
+      //dummy[size] = '\n';
+      fwrite(dummy,1,2,fp);
+      //fputs(dummy,fp);
       break;
     }
+    i++;
+    /*
+    if(!feof(fp)){
+      printf("end of file\n");
+      break;
+    }
+     */
   }
-  //未実装
   
 }
 
