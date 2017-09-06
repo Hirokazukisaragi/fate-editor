@@ -9,6 +9,7 @@
 void openfail(void);
 char *readLine(char *allTEXT,long lineNum,char *fetchedLine);
 char *inputLine(void);
+void listText(char *allTEXT);
 void writeLine(int lineNum);
 void deleteLine(int lineNum);
 
@@ -114,6 +115,10 @@ int main(int argc,char *argv[]){
       deleteLine(ROW_NUM);
       continue;
     }
+    if(!strcmp(command,"l\n")){
+      listText(allTEXT);
+      continue;
+    }
     sscanf(command,"%d",&ROW_NUM);
     write = inputLine();
     if(!strcmp("Too long",write)){
@@ -198,7 +203,22 @@ void deleteLine(int lineNum){
   //未実装
 
 }
-
+void listText(char *allTEXT){
+  long lnum=1;
+  long i=0;
+  while(allTEXT[i] != '\0'){
+    printf("%ld:",lnum);
+    while(allTEXT[i] != '\n'){
+      printf("%c",allTEXT[i]);
+      i++;
+      if(allTEXT[i] == '\n'){
+	printf("\n");
+      }
+    }
+    lnum++;
+    i++;
+  }
+}
 void openfail(void){
   printf("FAITAL ERROR\n");
   exit(1);
