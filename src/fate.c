@@ -53,15 +53,23 @@ int main(int argc,char *argv[]){
   
   //LIST *first = new_list(NULL,buffer);
   LIST *first;
-  first = NULL;
-  //first = addLIST(buffer);
+  list = malloc(sizeof(LIST));
+  list->txtline = malloc(ONE_LINE);
+  list->NEXT = NULL;
+  //first = NULL;
+  fgets(buffer,ONE_LINE,fp);
+  first = addLIST(list,buffer);
   //LIST *top = first;
   //LIST *first = top;
   //printf("top is %s\n",buffer)
-  list = first;
+  first = list;
   while(1){
+    
     fgets(buffer,ONE_LINE,fp);
-    first = addLIST(first,buffer);
+    while(list->NEXT != NULL){
+      list = list->NEXT;
+    }
+    list = addLIST(list,buffer);
     if(feof(fp)){
       break;
     }
@@ -107,10 +115,15 @@ LIST *addLIST(LIST *now,char *txtline){
   LIST *p;
   p = malloc(sizeof(LIST));
   p->txtline = malloc(ONE_LINE);
+  p->NEXT = NULL;
+  while(now->NEXT != NULL){
+    now = now->NEXT;
+  }
   strcpy(p->txtline,txtline);
-  p->NEXT = now;
-  now = p;
-  return now;
+  now->NEXT = p;
+  //p->NEXT = NULL;
+  //now = p;
+  return p;
 }
 void listFree(LIST *OLD){
   LIST *temp = OLD;
