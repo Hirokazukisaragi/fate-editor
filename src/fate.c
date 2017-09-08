@@ -21,7 +21,7 @@ void deleteLine(int lineNum);
 // void addLIST(LIST *now,char *txtline);
 LIST *addLIST(LIST *first,char *txtline);
 LIST *new_list(char *txtline);
-
+LIST *delList(LIST *top,long delnum);
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
@@ -37,6 +37,8 @@ int main(int argc,char *argv[]){
   int ROW_NUM;
   int tlen = 0;
   long Line = 0;
+  char immdata[128];
+  long immline=0;
   long lineNum = 0;
   long indextxt = 0;
   int err = 0;
@@ -53,15 +55,24 @@ int main(int argc,char *argv[]){
   
   //LIST *first = new_list(NULL,buffer);
   LIST *first;
-  first = NULL;
-  //first = addLIST(buffer);
+  first = list;
+  list = malloc(sizeof(LIST));
+  list->txtline = malloc(ONE_LINE);
+  list->NEXT = NULL;
+  //first = NULL;
+  fgets(buffer,ONE_LINE,fp);
+  first = addLIST(list,buffer);
   //LIST *top = first;
   //LIST *first = top;
   //printf("top is %s\n",buffer)
-  list = first;
+  //first = list;
   while(1){
+    
     fgets(buffer,ONE_LINE,fp);
-    first = addLIST(first,buffer);
+    while(list->NEXT != NULL){
+      list = list->NEXT;
+    }
+    list = addLIST(list,buffer);
     if(feof(fp)){
       break;
     }
@@ -69,6 +80,7 @@ int main(int argc,char *argv[]){
   //first = top;
   //fread(allTEXT,sizeof(char),MAXIMUM_TEXT,fp);
   while(1){
+   
     //rewind(fp);
     //first = top;
     
@@ -85,6 +97,11 @@ int main(int argc,char *argv[]){
       //listText(first);
       listText(first);
       continue;
+    }
+    if(!strcmp(command,"d\n")){
+      fgets(immdata,128,stdin);
+      sscanf(immdata,"%ld",&immline);
+      first = delList(first,immline);
     }
     
   }
@@ -103,14 +120,58 @@ void listText(LIST *top){
     lnum++;
   }
 }
+LIST *delList(LIST *top,long delnum){
+  printf("del:%ld\n",delnum);
+  long i = 1,j=0;
+  LIST *topdev = top;
+  LIST *temp1,*temp2;
+  
+  //temp = malloc(sizeof(LIST));
+
+    //temp1 = top;
+    for(j=0;j < delnum;j++){
+      if(delnum == 1){
+	break;
+      }
+      top = top->NEXT;
+    }
+      temp1 = top;
+      top = top->NEXT;
+      
+      temp2 = top->NEXT;
+     
+      temp1->NEXT = temp2;
+      top->NEXT = temp2;
+      
+  //temp2 = top->NEXT;
+  //temp = top;
+  if(delnum == 1){
+    //temp = top->NEXT;
+    //temp->NEXT = top->NEXT;
+    topdev = top->NEXT;
+    top = topdev;
+  }else{
+    //top = temp1->NEXT;
+    top = temp1;
+  }
+  //topdev = top;
+  listText(topdev);
+  return topdev;
+}
+  
 LIST *addLIST(LIST *now,char *txtline){
   LIST *p;
   p = malloc(sizeof(LIST));
   p->txtline = malloc(ONE_LINE);
+  p->NEXT = NULL;
+  while(now->NEXT != NULL){
+    now = now->NEXT;
+  }
   strcpy(p->txtline,txtline);
-  p->NEXT = now;
-  now = p;
-  return now;
+  now->NEXT = p;
+  //p->NEXT = NULL;
+  //now = p;
+  return p;
 }
 void listFree(LIST *OLD){
   LIST *temp = OLD;
