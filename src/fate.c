@@ -123,38 +123,34 @@ void listText(LIST *top){
 LIST *delList(LIST *top,long delnum){
   printf("del:%ld\n",delnum);
   long i = 1,j=0;
-  LIST *topdev = top;
-  LIST *temp1,*temp2;
-  
+  LIST *topdev,*init;
+  LIST *temp1,*temp2,*temp3;
+  delnum = delnum - 1;
   //temp = malloc(sizeof(LIST));
-
-    //temp1 = top;
-    for(j=0;j < delnum;j++){
-      if(delnum == 1){
-	break;
-      }
+  if(!delnum){
+    top = top->NEXT;
+  }else{
+    topdev = top;
+    for(j=1;j < delnum;j++){
       top = top->NEXT;
     }
-      temp1 = top;
-      top = top->NEXT;
-      
-      temp2 = top->NEXT;
-     
-      temp1->NEXT = temp2;
-      top->NEXT = temp2;
-      
-  //temp2 = top->NEXT;
-  //temp = top;
-  if(delnum == 1){
+    temp1 = top;
+    top = top->NEXT;
+    
+    temp2 = top->NEXT;
+    
+    top = temp1;
+    top->NEXT = temp2;
+    
+    //temp2 = top->NEXT;
+    //temp = top;
     //temp = top->NEXT;
     //temp->NEXT = top->NEXT;
-    topdev = top->NEXT;
+    //topdev = top->NEXT;
     top = topdev;
-  }else{
-    //top = temp1->NEXT;
-    top = temp1;
   }
   //topdev = top;
+  topdev = top;
   listText(topdev);
   return topdev;
 }
