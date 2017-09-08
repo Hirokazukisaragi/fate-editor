@@ -77,13 +77,15 @@ int main(int argc,char *argv[]){
       break;
     }
   }
+  
+  LIST *initial;
+  initial = first;
   //first = top;
   //fread(allTEXT,sizeof(char),MAXIMUM_TEXT,fp);
   while(1){
-   
     //rewind(fp);
     //first = top;
-    
+    first = initial;
     memset(command,0,ONE_LINE);
 
     printf("please input command:");
@@ -103,14 +105,29 @@ int main(int argc,char *argv[]){
       sscanf(immdata,"%ld",&immline);
       first = delList(first,immline);
     }
-    
+    if(!strcmp(command,"s\n")){
+      initial = first;
+      fclose(fp);
+      fp = fopen(argv[1],"w+");
+      rewind(fp);
+      while(1){
+	fputs(first->txtline,fp);
+	first = first->NEXT;
+	if(first->NEXT == NULL){
+	  break;
+	}
+      }
+      first = initial;
+    }
   }
   free(fetchedLine);
   //listFree(top);
   fclose(fp);
   return 0;
 }
-
+void saveText(LIST *Write,FILE *fp){
+}
+      
 void listText(LIST *top){
   long lnum=1;
   while(top->NEXT != NULL){
@@ -126,7 +143,6 @@ LIST *delList(LIST *top,long delnum){
   LIST *topdev,*init;
   LIST *temp1,*temp2,*temp3;
   delnum = delnum - 1;
-  //temp = malloc(sizeof(LIST));
   if(!delnum){
     top = top->NEXT;
   }else{
@@ -142,14 +158,8 @@ LIST *delList(LIST *top,long delnum){
     top = temp1;
     top->NEXT = temp2;
     
-    //temp2 = top->NEXT;
-    //temp = top;
-    //temp = top->NEXT;
-    //temp->NEXT = top->NEXT;
-    //topdev = top->NEXT;
     top = topdev;
   }
-  //topdev = top;
   topdev = top;
   listText(topdev);
   return topdev;
@@ -177,6 +187,10 @@ void listFree(LIST *OLD){
     free(temp);
     temp = swap;
   }
+}
+LIST *empty(){
+  LIST *E;
+  return E;
 }
 void openfail(void){
   printf("FAITAL ERROR\n");
