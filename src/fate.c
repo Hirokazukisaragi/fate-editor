@@ -20,10 +20,9 @@ void writeLine(int lineNum);
 void deleteLine(int lineNum);
 // void addLIST(LIST *now,char *txtline);
 LIST *addLIST(LIST *first,char *txtline);
-LIST *new_list(char *txtline);
+LIST *new_list(LIST *next,char *txtline);
 LIST *delList(LIST *top,long delnum);
 LIST *insertTxt(LIST *top,long insert);
-LIST *single(char *name);
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
@@ -80,15 +79,15 @@ int main(int argc,char *argv[]){
     }
   }
   
-  LIST *initial;
+  //LIST *initial;
   
-  initial = first;
+  //initial = first;
   //first = top;
   //fread(allTEXT,sizeof(char),MAXIMUM_TEXT,fp);
   while(1){
     //rewind(fp);
     //first = top;
-    first = initial;
+    //first = initial;
     memset(command,0,ONE_LINE);
 
     printf("please input command:");
@@ -114,7 +113,7 @@ int main(int argc,char *argv[]){
       first = insertTxt(first,immline);
     }
     if(!strcmp(command,"s\n")){
-      initial = first;
+      //initial = first;
       fclose(fp);
       fp = fopen(argv[1],"w+");
       rewind(fp);
@@ -125,14 +124,21 @@ int main(int argc,char *argv[]){
 	  break;
 	}
       }
-      first = initial;
+      //first = initial;
     }
   }
   //listFree(top);
   fclose(fp);
   return 0;
 }
-
+LIST *new_list(LIST *next,char *txtline){
+  LIST *now;  
+  now = malloc(sizeof(LIST));
+  now->txtline = malloc(ONE_LINE);
+  now->NEXT = next;
+  strcpy(now->txtline,txtline);
+  return now;
+}
 void listText(LIST *top){
   long lnum=1;
   while(top->NEXT != NULL){
@@ -145,20 +151,20 @@ void listText(LIST *top){
 LIST *insertTxt(LIST *top,long insert){
   LIST *head,*ins,*temp1,*temp2;
   //head = top;
-  listText(head);
+  ins = malloc(sizeof(LIST));
+  //listText(head);
   char buffer[ONE_LINE];
   long i = 0,j = 0;
+  memset(buffer,0,ONE_LINE);
   insert--;
   if(!insert){
     head = top;
+    ins = top;
     fgets(buffer,ONE_LINE,stdin);
-    printf("pregen\n");
-    ins = single(buffer);
-    printf("buffed\n");
-    temp1 = ins;
-    top = top->NEXT;
-    top = ins;
-    ins->NEXT = top->NEXT;
+    //strcat(buffer,"\n");
+    ins = new_list(head,buffer);
+    ins->NEXT = head;
+    return ins;
   }else{
     fgets(buffer,ONE_LINE,stdin);
     temp1 = addLIST(top,buffer);
@@ -166,11 +172,11 @@ LIST *insertTxt(LIST *top,long insert){
       top = top->NEXT;
     }
     
-    printf("temp1->%s\ntemp2->%s\n",temp1->txtline,temp2->txtline);
   }
   //listText(head);
   return head;
 }
+
 LIST *delList(LIST *top,long delnum){
   printf("del:%ld\n",delnum);
   long i = 1,j=0;
@@ -213,6 +219,7 @@ LIST *addLIST(LIST *now,char *txtline){
   //now = p;
   return p;
 }
+
 void listFree(LIST *OLD){
   LIST *temp = OLD;
   LIST *swap = NULL;
@@ -222,13 +229,7 @@ void listFree(LIST *OLD){
     temp = swap;
   }
 }
-LIST *single(char *name){
-  LIST *E;
-  E = malloc(sizeof(LIST));
-  E->NEXT = NULL;
-  strcpy(name,E->txtline);
-  return E;
-}
+
 void openfail(void){
   printf("FAITAL ERROR\n");
   exit(1);
