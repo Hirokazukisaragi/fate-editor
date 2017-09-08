@@ -9,7 +9,7 @@
 #define BUFSIZE 65554
 typedef struct LIST{
   char *txtline;
-  struct LINE *NEXT;
+  struct LIST *NEXT;
   //struct LINE *PREV;
 }LIST;
 void openfail(void);
@@ -30,24 +30,11 @@ char EXIT_FLAG = 0;
 int main(int argc,char *argv[]){
   char command[ONE_LINE];
   //char **allTEXT;
-  LIST *allTEXT;
-  char **altText;
   char *buffer;
-  char *fetchedLine;
-  long MAXIMUM_TEXT = 128;
-  int ROW_NUM;
-  int tlen = 0;
-  long Line = 0;
   char immdata[128];
   long immline=0;
-  long lineNum = 0;
-  long indextxt = 0;
-  int err = 0;
-  LIST *list;
-  //altText = malloc(ONE_LINE);
-  //*altText = malloc(MAX_ROW);
+  LIST *list = NULL;
   buffer = malloc(ONE_LINE+1);
-  fetchedLine = malloc(MAXIMUM_TEXT);
   if((fp = fopen(argv[1],"r+")) == NULL){
     if((fp = fopen(argv[1],"w+")) == NULL){
       openfail();
@@ -154,7 +141,7 @@ LIST *insertTxt(LIST *top,long insert){
   ins = malloc(sizeof(LIST));
   //listText(head);
   char buffer[ONE_LINE];
-  long i = 0,j = 0;
+  long j = 0;
   memset(buffer,0,ONE_LINE);
   insert--;
   if(!insert){
@@ -182,8 +169,8 @@ LIST *insertTxt(LIST *top,long insert){
 
 LIST *delList(LIST *top,long delnum){
   printf("del:%ld\n",delnum);
-  long i = 1,j=0;
-  LIST *topdev,*init;
+  long j=0;
+  LIST *topdev;
   LIST *temp1,*temp2;
   delnum = delnum - 1;
   if(!delnum){
