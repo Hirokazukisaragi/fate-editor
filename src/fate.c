@@ -27,6 +27,7 @@ char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
 char EXIT_FLAG = 0;
+int base = 10;
 int main(int argc,char *argv[]){
   char command[ONE_LINE];
   //char **allTEXT;
@@ -91,12 +92,12 @@ int main(int argc,char *argv[]){
     }
     if(!strcmp(command,"d\n")){
       fgets(immdata,128,stdin);
-      sscanf(immdata,"%ld",&immline);
+      immline = strtol(immdata,NULL,base);
       first = delList(first,immline);
     }
     if(!strcmp(command,"i\n")){
       fgets(immdata,128,stdin);
-      sscanf(immdata,"%ld",&immline);
+      immline = strtol(immdata,NULL,base);
       first = insertTxt(first,immline);
     }
     if(!strcmp(command,"s\n")){
