@@ -149,7 +149,7 @@ void listText(LIST *top){
   }
 }
 LIST *insertTxt(LIST *top,long insert){
-  LIST *head,*ins,*temp1,*temp2;
+  LIST *head,*ins,*temp;
   //head = top;
   ins = malloc(sizeof(LIST));
   //listText(head);
@@ -166,12 +166,15 @@ LIST *insertTxt(LIST *top,long insert){
     ins->NEXT = head;
     return ins;
   }else{
+    head = top;
     fgets(buffer,ONE_LINE,stdin);
-    temp1 = addLIST(top,buffer);
     for(j=1;j < insert;j++){
       top = top->NEXT;
     }
-    
+    temp = top;
+    top = new_list(top->NEXT,buffer);
+    temp->NEXT = top;
+    return head;
   }
   //listText(head);
   return head;
