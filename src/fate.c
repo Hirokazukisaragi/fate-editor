@@ -29,18 +29,24 @@ typedef struct LIST{
   struct LIST *NEXT;
   //struct LINE *PREV;
 }LIST;
+/* 
+openfail if FILE open fail, exit
+listText is show LIST add line number
+deleteLine is select line disconnect pointer
+listFree do free() LIST
+ */
 void openfail(void);
-char *readLine(char **allTEXT,long lineNum,char *fetchedLine);
-char *inputLine(void);
 void listText(LIST *top);
-void writeLine(int lineNum);
 void deleteLine(int lineNum);
 void listFree(LIST *top);
-// void addLIST(LIST *now,char *txtline);
+
 LIST *addLIST(LIST *first,char *txtline);
 LIST *new_list(LIST *next,char *txtline);
 LIST *delList(LIST *top,long delnum);
 LIST *insertTxt(LIST *top,long insert);
+
+int validation(char Flag);
+
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
@@ -48,7 +54,6 @@ char EXIT_FLAG = 0;
 int base = 10;
 int main(int argc,char *argv[]){
   char command[ONE_LINE];
-  //char **allTEXT;
   char *buffer;
   char immdata[128];
   long immline=0;
@@ -59,20 +64,19 @@ int main(int argc,char *argv[]){
       openfail();
     }
   }
-  
-  //LIST *first = new_list(NULL,buffer);
+  /*
+first is head of LIST 
+ */
   LIST *first;
   first = list;
   list = malloc(sizeof(LIST));
   list->txtline = malloc(ONE_LINE);
   list->NEXT = NULL;
-  //first = NULL;
   fgets(buffer,ONE_LINE,fp);
   first = addLIST(list,buffer);
-  //LIST *top = first;
-  //LIST *first = top;
-  //printf("top is %s\n",buffer)
-  //first = list;
+    /*
+generate initial LIST 
+ */
   while(1){
     
     fgets(buffer,ONE_LINE,fp);
@@ -85,15 +89,7 @@ int main(int argc,char *argv[]){
     }
   }
   
-  //LIST *initial;
-  
-  //initial = first;
-  //first = top;
-  //fread(allTEXT,sizeof(char),MAXIMUM_TEXT,fp);
   while(1){
-    //rewind(fp);
-    //first = top;
-    //first = initial;
     memset(command,0,ONE_LINE);
 
     printf("please input command:");
@@ -104,39 +100,53 @@ int main(int argc,char *argv[]){
     }
     
     if(!strcmp(command,"l\n")){
-      //listText(first);
       listText(first);
       continue;
     }
     if(!strcmp(command,"d\n")){
+      printf("which line delete:");
       fgets(immdata,128,stdin);
       immline = strtol(immdata,NULL,base);
       first = delList(first,immline);
+      if(immline < 1){
+	validation(0);
+      }
     }
     if(!strcmp(command,"i\n")){
+      printf("where insert line:");
       fgets(immdata,128,stdin);
       immline = strtol(immdata,NULL,base);
       first = insertTxt(first,immline);
+      if(immline < 1){
+	validation(0);
+      }
     }
     if(!strcmp(command,"s\n")){
-      //initial = first;
-      fclose(fp);
-      fp = fopen(argv[1],"w+");
-      rewind(fp);
-      while(1){
-	fputs(first->txtline,fp);
-	first = first->NEXT;
-	if(first->NEXT == NULL){
-	  break;
+      printf("File overrite OK? Y/N:");
+      char YorN[16];
+      fgets(YorN,sizeof(char),stdin);
+      if(!strcmp(YorN,"N\n")){
+	continue;
+      }else if(strcmp(YorN,"Y\n")){
+	fclose(fp);
+	fp = fopen(argv[1],"w+");
+	rewind(fp);
+	while(1){
+	  fputs(first->txtline,fp);
+	  first = first->NEXT;
+	  if(first->NEXT == NULL){
+	    break;
+	  }
 	}
       }
-      //first = initial;
+	//first = initial;
     }
   }
   listFree(first);
   fclose(fp);
   return 0;
 }
+/* create new LIST */
 LIST *new_list(LIST *next,char *txtline){
   LIST *now;  
   now = malloc(sizeof(LIST));
@@ -145,6 +155,7 @@ LIST *new_list(LIST *next,char *txtline){
   strcpy(now->txtline,txtline);
   return now;
 }
+/* show the LIST */
 void listText(LIST *top){
   long lnum=1;
   while(top->NEXT != NULL){
@@ -154,11 +165,10 @@ void listText(LIST *top){
     lnum++;
   }
 }
+/* insert single LIST into second argument */
 LIST *insertTxt(LIST *top,long insert){
   LIST *head,*ins,*temp;
-  //head = top;
   ins = malloc(sizeof(LIST));
-  //listText(head);
   char buffer[ONE_LINE];
   long j = 0;
   memset(buffer,0,ONE_LINE);
@@ -167,7 +177,6 @@ LIST *insertTxt(LIST *top,long insert){
     head = top;
     ins = top;
     fgets(buffer,ONE_LINE,stdin);
-    //strcat(buffer,"\n");
     ins = new_list(head,buffer);
     ins->NEXT = head;
     return ins;
@@ -182,10 +191,11 @@ LIST *insertTxt(LIST *top,long insert){
     temp->NEXT = top;
     return head;
   }
-  //listText(head);
   return head;
 }
-
+/* dettach LIST and LIST->NEXT
+ATTENTION! this function NOT free LIST!
+ */
 LIST *delList(LIST *top,long delnum){
   printf("del:%ld\n",delnum);
   long j=0;
@@ -213,7 +223,7 @@ LIST *delList(LIST *top,long delnum){
   listText(topdev);
   return topdev;
 }
-// LIST *insertTxt( 
+
 LIST *addLIST(LIST *now,char *txtline){
   LIST *p;
   p = malloc(sizeof(LIST));
@@ -228,7 +238,7 @@ LIST *addLIST(LIST *now,char *txtline){
   //now = p;
   return p;
 }
-
+/* do free the LIST */
 void listFree(LIST *OLD){
   LIST *temp = OLD;
   LIST *swap = NULL;
@@ -246,4 +256,9 @@ void openfail(void){
   printf("FAITAL ERROR\n");
   exit(1);
 }
-
+int validation(char Flag){
+  if(Flag == 0){
+    printf("NO permit input\n");
+  }
+  return 0;
+}
