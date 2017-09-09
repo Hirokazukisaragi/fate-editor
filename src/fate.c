@@ -45,6 +45,8 @@ LIST *new_list(LIST *next,char *txtline);
 LIST *delList(LIST *top,long delnum);
 LIST *insertTxt(LIST *top,long insert);
 
+int validation(char Flag);
+
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
@@ -71,7 +73,7 @@ first is head of LIST
   list->txtline = malloc(ONE_LINE);
   list->NEXT = NULL;
   fgets(buffer,ONE_LINE,fp);
-  first = addLIST(list,buffer)
+  first = addLIST(list,buffer);
     /*
 generate initial LIST 
  */
@@ -102,27 +104,42 @@ generate initial LIST
       continue;
     }
     if(!strcmp(command,"d\n")){
+      printf("which line delete:");
       fgets(immdata,128,stdin);
       immline = strtol(immdata,NULL,base);
       first = delList(first,immline);
+      if(immline < 1){
+	validation(0);
+      }
     }
     if(!strcmp(command,"i\n")){
+      printf("where insert line:");
       fgets(immdata,128,stdin);
       immline = strtol(immdata,NULL,base);
       first = insertTxt(first,immline);
+      if(immline < 1){
+	validation(0);
+      }
     }
     if(!strcmp(command,"s\n")){
-      fclose(fp);
-      fp = fopen(argv[1],"w+");
-      rewind(fp);
-      while(1){
-	fputs(first->txtline,fp);
-	first = first->NEXT;
-	if(first->NEXT == NULL){
-	  break;
+      printf("File overrite OK? Y/N:");
+      char YorN[16];
+      fgets(YorN,sizeof(char),stdin);
+      if(!strcmp(YorN,"N\n")){
+	continue;
+      }else if(strcmp(YorN,"Y\n")){
+	fclose(fp);
+	fp = fopen(argv[1],"w+");
+	rewind(fp);
+	while(1){
+	  fputs(first->txtline,fp);
+	  first = first->NEXT;
+	  if(first->NEXT == NULL){
+	    break;
+	  }
 	}
       }
-      //first = initial;
+	//first = initial;
     }
   }
   listFree(first);
@@ -239,4 +256,9 @@ void openfail(void){
   printf("FAITAL ERROR\n");
   exit(1);
 }
-
+int validation(char Flag){
+  if(Flag == 0){
+    printf("NO permit input\n");
+  }
+  return 0;
+}
