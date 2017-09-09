@@ -1,3 +1,20 @@
+/****************************************************************
+Copyright (C) 2017  Hirokazu Seno
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>
+*******************************************************************/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -5,220 +22,226 @@
 
 
 #define ONE_LINE 81
-#define MAX_ROW 655554
+#define MAX_ROW 65554
+#define BUFSIZE 65554
+typedef struct LIST{
+  char *txtline;
+  struct LIST *NEXT;
+  //struct LINE *PREV;
+}LIST;
 void openfail(void);
-char *readLine(char *allTEXT,long lineNum,char *fetchedLine);
+char *readLine(char **allTEXT,long lineNum,char *fetchedLine);
 char *inputLine(void);
-void listText(char *allTEXT);
+void listText(LIST *top);
 void writeLine(int lineNum);
 void deleteLine(int lineNum);
-
+void listFree(LIST *top);
+// void addLIST(LIST *now,char *txtline);
+LIST *addLIST(LIST *first,char *txtline);
+LIST *new_list(LIST *next,char *txtline);
+LIST *delList(LIST *top,long delnum);
+LIST *insertTxt(LIST *top,long insert);
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
 char EXIT_FLAG = 0;
+int base = 10;
 int main(int argc,char *argv[]){
   char command[ONE_LINE];
-  char *allTEXT;
-  char *altText;
-  char *fetchedLine;
-  long MAXIMUM_TEXT = 128;
-  int ROW_NUM;
-  int tlen = 0;
-  long lineNum = 0;
-  long indextxt = 0;
-  int err = 0;
-  allTEXT = malloc(MAXIMUM_TEXT);
-  altText = malloc(MAXIMUM_TEXT);
-  fetchedLine = malloc(MAXIMUM_TEXT);
+  //char **allTEXT;
+  char *buffer;
+  char immdata[128];
+  long immline=0;
+  LIST *list = NULL;
+  buffer = malloc(ONE_LINE+1);
   if((fp = fopen(argv[1],"r+")) == NULL){
     if((fp = fopen(argv[1],"w+")) == NULL){
       openfail();
     }
   }
+  
+  //LIST *first = new_list(NULL,buffer);
+  LIST *first;
+  first = list;
+  list = malloc(sizeof(LIST));
+  list->txtline = malloc(ONE_LINE);
+  list->NEXT = NULL;
+  //first = NULL;
+  fgets(buffer,ONE_LINE,fp);
+  first = addLIST(list,buffer);
+  //LIST *top = first;
+  //LIST *first = top;
+  //printf("top is %s\n",buffer)
+  //first = list;
+  while(1){
+    
+    fgets(buffer,ONE_LINE,fp);
+    while(list->NEXT != NULL){
+      list = list->NEXT;
+    }
+    list = addLIST(list,buffer);
+    if(feof(fp)){
+      break;
+    }
+  }
+  
+  //LIST *initial;
+  
+  //initial = first;
+  //first = top;
   //fread(allTEXT,sizeof(char),MAXIMUM_TEXT,fp);
   while(1){
-    rewind(fp);
-    memset(allTEXT,0,MAXIMUM_TEXT);
-    fread(allTEXT,sizeof(char),MAXIMUM_TEXT,fp);
-    indextxt = MAXIMUM_TEXT - 1;
-    //altText = allTEXT;
+    //rewind(fp);
+    //first = top;
+    //first = initial;
     memset(command,0,ONE_LINE);
-    /*
-    if(allTEXT[sizeof(allTEXT)] != '\0'){
-      MAXIMUM_TEXT++;
 
-      altText = malloc(MAXIMUM_TEXT);
-      if(altText != allTEXT){
-	memcpy(altText,allTEXT,MAXIMUM_TEXT);
-	free(allTEXT);
-      }
-      allTEXT = realloc(altText,MAXIMUM_TEXT);
-      if(altText != allTEXT){
-	memcpy(allTEXT,altText,MAXIMUM_TEXT);
-	free(altText);
-      }
-      //free(allTEXT);
-      //allTEXT = malloc(MAXIMUM_TEXT);
-
-      continue;
-    }
-    */
-    //while(allTEXT[MAXIMUM_TEXT-1] != '\0'){
-    while(allTEXT[indextxt] != '\0'){
-      rewind(fp);
-      memset(allTEXT,0,MAXIMUM_TEXT-1);
-
-      //if(allTEXT[MAXIMUM_TEXT] != '\0'){
-      //continue;
-      //}
-      //printf("now=%s\n",allTEXT);
-      free(allTEXT);
-      MAXIMUM_TEXT++;
-      allTEXT = malloc(MAXIMUM_TEXT);
-      fread(allTEXT,sizeof(char),MAXIMUM_TEXT,fp);
-      indextxt = MAXIMUM_TEXT - 1;
-      //continue;
-    }
-    memset(fetchedLine,0,MAXIMUM_TEXT);
     printf("please input command:");
     fgets(command,MAX_ROW,stdin);
 
     if(!strcmp(command,"q\n")){
       break;
     }
-
-    if(!strcmp(command,"s\n")){
-      tlen = strlen(allTEXT);
-
-      allTEXT[tlen] = '\0';
-      printf("%s\n",allTEXT);
-      printf("written=%d\n",tlen);
-      err = fwrite(allTEXT,sizeof(char),tlen,fp);
-      if(err < tlen){
-	printf("written error=%d!\n",err);
-      }
-      printf("MAX is %d\n",MAXIMUM_TEXT);
-      continue;
-    }
-
-    if(!strcmp(command,"r\n")){
-      fgets(command,MAX_ROW,stdin);
-      sscanf(command,"%d",&ROW_NUM);
-      fetchedLine = readLine(allTEXT,ROW_NUM,fetchedLine);
-      printf("%s\n",fetchedLine);
+    
+    if(!strcmp(command,"l\n")){
+      //listText(first);
+      listText(first);
       continue;
     }
     if(!strcmp(command,"d\n")){
-      fgets(command,MAX_ROW,stdin);
-      sscanf(command,"%d",&ROW_NUM);
-      deleteLine(ROW_NUM);
-      continue;
+      fgets(immdata,128,stdin);
+      immline = strtol(immdata,NULL,base);
+      first = delList(first,immline);
     }
-    if(!strcmp(command,"l\n")){
-      listText(allTEXT);
-      continue;
+    if(!strcmp(command,"i\n")){
+      fgets(immdata,128,stdin);
+      immline = strtol(immdata,NULL,base);
+      first = insertTxt(first,immline);
     }
-    sscanf(command,"%d",&ROW_NUM);
-    write = inputLine();
-    if(!strcmp("Too long",write)){
-      memset(WRITE_LINE,'\0',ONE_LINE);
-      continue;
+    if(!strcmp(command,"s\n")){
+      //initial = first;
+      fclose(fp);
+      fp = fopen(argv[1],"w+");
+      rewind(fp);
+      while(1){
+	fputs(first->txtline,fp);
+	first = first->NEXT;
+	if(first->NEXT == NULL){
+	  break;
+	}
+      }
+      //first = initial;
     }
-    //writeLine(lineNum);
-
   }
-  //fseek(fp,0,SEEK_END);
-  //while(*allTEXT != '\0'){
-
-  //  fputc(*allTEXT,fp);
-  //    *allTEXT++;
-  //  }
-  free(fetchedLine);
-  free(allTEXT);
-  free(altText);
+  listFree(first);
   fclose(fp);
   return 0;
 }
-char *readLine(char *allTEXT,long lineNum,char *fetchedLine){
-  long linecount = 1;
-  long i = 0,j=0;
-  while(linecount != lineNum){
-    if(allTEXT[i] == '\n'){
-      linecount++;
-      i++;
-    }
-    if(linecount == lineNum){
-      while((allTEXT[i] != '\n') && (allTEXT[i] != '\0')){
-	fetchedLine[j] = allTEXT[i];
-	i++;
-	j++;
-      }
-    }
-    if(allTEXT[i] == '\0'){
-      printf("please input validate line\n");
-      break;
-    }
-    i++;
-  }
-  if(lineNum == 1){
-    while((allTEXT[i] != '\n') && (allTEXT[i] != '\0')){
-      fetchedLine[j] = allTEXT[i];
-      i++;
-      j++;
-    }
-  }
-  return fetchedLine;
+LIST *new_list(LIST *next,char *txtline){
+  LIST *now;  
+  now = malloc(sizeof(LIST));
+  now->txtline = malloc(ONE_LINE);
+  now->NEXT = next;
+  strcpy(now->txtline,txtline);
+  return now;
 }
-char *inputLine(void){
-  fgets(WRITE_LINE,ONE_LINE,stdin);
-  if(strlen(WRITE_LINE) >= ONE_LINE-1){
-    printf("行が長すぎます\n");
-    memset(WRITE_LINE,'\0',ONE_LINE);
-    return "Too long";
-  }
-  return WRITE_LINE;
-}
-void writeLine(int lineNum){
-  char dummy[ONE_LINE];
-  for(int i=0;i != lineNum;i++){
-    fgets(dummy,ONE_LINE,fp);
-    if(feof(fp)){
-      break;
-    }
-  }
-  fseek(fp,0,SEEK_END);
-  //fwrite(WRITE_LINE,sizeof(char),MAXIMUM_TEXT,fp);
-}
-
-void deleteLine(int lineNum){
-  int i;
-  char dummy[ONE_LINE];
-  for(i=0;i != lineNum;i++){
-    fgets(dummy,ONE_LINE,fp);
-    if(feof(fp)){
-      break;
-    }
-  }
-  //未実装
-
-}
-void listText(char *allTEXT){
+void listText(LIST *top){
   long lnum=1;
-  long i=0;
-  while(allTEXT[i] != '\0'){
+  while(top->NEXT != NULL){
     printf("%ld:",lnum);
-    while(allTEXT[i] != '\n'){
-      printf("%c",allTEXT[i]);
-      i++;
-      if(allTEXT[i] == '\n'){
-	printf("\n");
-      }
-    }
+    printf("%s",top->txtline);
+    top = top->NEXT;
     lnum++;
-    i++;
   }
 }
+LIST *insertTxt(LIST *top,long insert){
+  LIST *head,*ins,*temp;
+  //head = top;
+  ins = malloc(sizeof(LIST));
+  //listText(head);
+  char buffer[ONE_LINE];
+  long j = 0;
+  memset(buffer,0,ONE_LINE);
+  insert--;
+  if(!insert){
+    head = top;
+    ins = top;
+    fgets(buffer,ONE_LINE,stdin);
+    //strcat(buffer,"\n");
+    ins = new_list(head,buffer);
+    ins->NEXT = head;
+    return ins;
+  }else{
+    head = top;
+    fgets(buffer,ONE_LINE,stdin);
+    for(j=1;j < insert;j++){
+      top = top->NEXT;
+    }
+    temp = top;
+    top = new_list(top->NEXT,buffer);
+    temp->NEXT = top;
+    return head;
+  }
+  //listText(head);
+  return head;
+}
+
+LIST *delList(LIST *top,long delnum){
+  printf("del:%ld\n",delnum);
+  long j=0;
+  LIST *topdev;
+  LIST *temp1,*temp2;
+  delnum = delnum - 1;
+  if(!delnum){
+    top = top->NEXT;
+  }else{
+    topdev = top;
+    for(j=1;j < delnum;j++){
+      top = top->NEXT;
+    }
+    temp1 = top;
+    top = top->NEXT;
+    
+    temp2 = top->NEXT;
+    
+    top = temp1;
+    top->NEXT = temp2;
+    
+    top = topdev;
+  }
+  topdev = top;
+  listText(topdev);
+  return topdev;
+}
+// LIST *insertTxt( 
+LIST *addLIST(LIST *now,char *txtline){
+  LIST *p;
+  p = malloc(sizeof(LIST));
+  p->txtline = malloc(ONE_LINE);
+  p->NEXT = NULL;
+  while(now->NEXT != NULL){
+    now = now->NEXT;
+  }
+  strcpy(p->txtline,txtline);
+  now->NEXT = p;
+  //p->NEXT = NULL;
+  //now = p;
+  return p;
+}
+
+void listFree(LIST *OLD){
+  LIST *temp = OLD;
+  LIST *swap = NULL;
+  char *swaptxt = "";
+  while(temp != NULL){
+    swap = temp->NEXT;
+    swaptxt = temp->txtline;
+    free(swaptxt);
+    free(temp);
+    temp = swap;
+  }
+}
+
 void openfail(void){
   printf("FAITAL ERROR\n");
   exit(1);
