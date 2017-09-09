@@ -18,6 +18,7 @@ char *inputLine(void);
 void listText(LIST *top);
 void writeLine(int lineNum);
 void deleteLine(int lineNum);
+void listFree(LIST *top);
 // void addLIST(LIST *now,char *txtline);
 LIST *addLIST(LIST *first,char *txtline);
 LIST *new_list(LIST *next,char *txtline);
@@ -115,7 +116,7 @@ int main(int argc,char *argv[]){
       //first = initial;
     }
   }
-  //listFree(top);
+  listFree(first);
   fclose(fp);
   return 0;
 }
@@ -214,8 +215,11 @@ LIST *addLIST(LIST *now,char *txtline){
 void listFree(LIST *OLD){
   LIST *temp = OLD;
   LIST *swap = NULL;
+  char *swaptxt = "";
   while(temp != NULL){
     swap = temp->NEXT;
+    swaptxt = temp->txtline;
+    free(swaptxt);
     free(temp);
     temp = swap;
   }
