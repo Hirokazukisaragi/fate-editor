@@ -107,18 +107,25 @@ generate initial LIST
       printf("which line delete:");
       fgets(immdata,128,stdin);
       immline = strtol(immdata,NULL,base);
-      first = delList(first,immline);
       if(immline < 1){
 	validation(0);
+	continue;
       }
+      first = delList(first,immline);
+
     }
     if(!strcmp(command,"i\n")){
       printf("where insert line:");
       fgets(immdata,128,stdin);
       immline = strtol(immdata,NULL,base);
+      if(immline < 1){
+	validation(0);
+	continue;
+      }
       first = insertTxt(first,immline);
       if(immline < 1){
 	validation(0);
+	continue;
       }
     }
     if(!strcmp(command,"s\n")){
