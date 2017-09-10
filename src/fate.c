@@ -50,6 +50,7 @@ int validation(char Flag);
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
+char SAVED_FLAG = 1;
 char EXIT_FLAG = 0;
 int base = 10;
 int main(int argc,char *argv[]){
@@ -96,9 +97,16 @@ generate initial LIST
     fgets(command,MAX_ROW,stdin);
 
     if(!strcmp(command,"q\n")){
-      break;
+      if(SAVED_FLAG){
+	printf("FILE NOT SAVED. QUIT OK(Y/N):");
+	fgets(buffer,ONE_LINE,stdin);
+	if(!strcmp(buffer,"Y\n")){
+	  break;
+	}else{
+	  continue;
+	}
+      }
     }
-    
     if(!strcmp(command,"l\n")){
       listText(first);
       continue;
@@ -109,6 +117,7 @@ generate initial LIST
       immline = strtol(immdata,NULL,base);
       if(immline < 1){
 	validation(0);
+	SAVED_FLAG = 0;
 	continue;
       }
       first = delList(first,immline);
@@ -125,6 +134,7 @@ generate initial LIST
       first = insertTxt(first,immline);
       if(immline < 1){
 	validation(0);
+	SAVED_FLAG = 0;
 	continue;
       }
     }
@@ -145,6 +155,7 @@ generate initial LIST
 	    break;
 	  }
 	}
+	SAVED_FLAG = 1;
       }
 	//first = initial;
     }
