@@ -44,12 +44,13 @@ LIST *addLIST(LIST *first,char *txtline);
 LIST *new_list(LIST *next,char *txtline);
 LIST *delList(LIST *top,long delnum);
 LIST *insertTxt(LIST *top,long insert);
-
+FILE *saveFile(FILE *fp,LIST *sLIST);
 int validation(char Flag);
 
 char WRITE_LINE[ONE_LINE];
 char *write;
 FILE *fp;
+char fName[6554];
 char SAVED_FLAG = 1;
 char EXIT_FLAG = 0;
 int base = 10;
@@ -58,10 +59,11 @@ int main(int argc,char *argv[]){
   char *buffer;
   char immdata[128];
   long immline=0;
+  strcpy(fName,argv[1]);
   LIST *list = NULL;
   buffer = malloc(ONE_LINE+1);
-  if((fp = fopen(argv[1],"r+")) == NULL){
-    if((fp = fopen(argv[1],"w+")) == NULL){
+  if((fp = fopen(fName,"r+")) == NULL){
+    if((fp = fopen(fName,"w+")) == NULL){
       openfail();
     }
   }
@@ -140,24 +142,8 @@ generate initial LIST
     }
     if(!strcmp(command,"s\n")){
       printf("File overrite OK? Y/N:");
-      char YorN[16];
-      fgets(YorN,sizeof(char),stdin);
-      if(!strcmp(YorN,"N\n")){
-	continue;
-      }else if(strcmp(YorN,"Y\n")){
-	fclose(fp);
-	fp = fopen(argv[1],"w+");
-	rewind(fp);
-	while(1){
-	  fputs(first->txtline,fp);
-	  first = first->NEXT;
-	  if(first->NEXT == NULL){
-	    break;
-	  }
-	}
-	SAVED_FLAG = 1;
-      }
 	//first = initial;
+      saveFile(fp,first);
     }
   }
   listFree(first);
@@ -177,11 +163,15 @@ LIST *new_list(LIST *next,char *txtline){
 void listText(LIST *top){
   long lnum=1;
   while(top->NEXT != NULL){
+    if(top->NEXT == NULL){
+      break;
+    }
     printf("%ld:",lnum);
     printf("%s",top->txtline);
     top = top->NEXT;
     lnum++;
   }
+  printf("\n");
 }
 /* insert single LIST into second argument */
 LIST *insertTxt(LIST *top,long insert){
@@ -279,4 +269,26 @@ int validation(char Flag){
     printf("NO permit input\n");
   }
   return 0;
+}
+FILE *saveFile(FILE *fp,LIST *first){
+  char YorN[16];
+  FILE *wfp;
+  wfp = fp;
+  
+  fgets(YorN,sizeof(char),stdin);
+  if(!strcmp(YorN,"N\n")){
+    return NULL;
+  }else if(strcmp(YorN,"Y\n")){
+    
+    wfp = fopen(fName,"w+");
+    rewind(wfp);
+    while(1){
+      fputs(first->txtline,wfp);
+      first = first->NEXT;
+      if(first->NEXT == NULL){
+	break;
+      }
+    }
+  }
+  return wfp;
 }
