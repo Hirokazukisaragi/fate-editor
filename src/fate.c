@@ -141,10 +141,10 @@ generate initial LIST
       }
     }
     if(!strcmp(command,"s\n")){
-      printf("File overrite OK? Y/N:");
-	//first = initial;
+      //first = initial;
       saveFile(fp,first);
     }
+
   }
   listFree(first);
   fclose(fp);
@@ -275,10 +275,14 @@ FILE *saveFile(FILE *fp,LIST *first){
   FILE *wfp;
   wfp = fp;
   
-  fgets(YorN,sizeof(char),stdin);
+  memset(YorN,0,16);
+  printf("File overrite OK? Y/N:");
+  fflush(stdout);
+  fgets(YorN,15,stdin);
   if(!strcmp(YorN,"N\n")){
     return NULL;
-  }else if(strcmp(YorN,"Y\n")){
+  }
+  if(!strcmp(YorN,"Y\n")){
     
     wfp = fopen(fName,"w+");
     rewind(wfp);
