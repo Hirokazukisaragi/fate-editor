@@ -94,13 +94,16 @@ generate initial LIST
   
   while(1){
     memset(command,0,ONE_LINE);
-
+    
     printf("please input command:");
     fgets(command,MAX_ROW,stdin);
-
+    
     if(!strcmp(command,"q\n")){
-      if(SAVED_FLAG){
+      if(SAVED_FLAG == 1){
+	break;
+      }else if(SAVED_FLAG == 0){
 	printf("FILE NOT SAVED. QUIT OK(Y/N):");
+	fflush(stdout);
 	fgets(buffer,ONE_LINE,stdin);
 	if(!strcmp(buffer,"Y\n")){
 	  break;
@@ -119,9 +122,9 @@ generate initial LIST
       immline = strtol(immdata,NULL,base);
       if(immline < 1){
 	validation(0);
-	SAVED_FLAG = 0;
 	continue;
       }
+      SAVED_FLAG = 0;
       first = delList(first,immline);
 
     }
@@ -129,6 +132,7 @@ generate initial LIST
       printf("where insert line:");
       fgets(immdata,128,stdin);
       immline = strtol(immdata,NULL,base);
+      SAVED_FLAG = 0;
       if(immline < 1){
 	validation(0);
 	continue;
@@ -280,10 +284,11 @@ FILE *saveFile(FILE *fp,LIST *first){
   fflush(stdout);
   fgets(YorN,15,stdin);
   if(!strcmp(YorN,"N\n")){
+    SAVED_FLAG =0;
     return NULL;
   }
   if(!strcmp(YorN,"Y\n")){
-    
+    SAVED_FLAG = 1;
     wfp = fopen(fName,"w+");
     rewind(wfp);
     while(1){
