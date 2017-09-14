@@ -289,7 +289,9 @@ FILE *saveFile(FILE *fp,LIST *first){
   }
   if(!strcmp(YorN,"Y\n")){
     SAVED_FLAG = 1;
-    wfp = fopen(fName,"w+");
+    if((wfp = fopen(fName,"w+")) == NULL){
+      openfail();
+    }
     rewind(wfp);
     while(1){
       fputs(first->txtline,wfp);
