@@ -39,6 +39,7 @@ void openfail(void);
 void listText(LIST *top);
 void deleteLine(int lineNum);
 void listFree(LIST *top);
+void showlist(LIST *top,int begin,int end);
 
 LIST *addLIST(LIST *first,char *txtline);
 LIST *new_list(LIST *next,char *txtline);
@@ -59,6 +60,8 @@ int main(int argc,char *argv[]){
   char *buffer;
   char immdata[128];
   long immline=0;
+  char begin[MAX_ROW],end[MAX_ROW];
+  long begini=0,endi=0;
   strcpy(fName,argv[1]);
   LIST *list = NULL;
   buffer = malloc(ONE_LINE+1);
@@ -114,6 +117,18 @@ generate initial LIST
     }
     if(!strcmp(command,"l\n")){
       listText(first);
+      continue;
+    }
+    if(!strcmp(command,"show\n")){
+      printf("input begin line:");
+      fflush(stdout);
+      fgets(begin,MAX_ROW,stdin);
+      printf("input end line:");
+      fflush(stdout);
+      fgets(end,MAX_ROW,stdin);
+      begini = strtol(begin,NULL,base);
+      endi = strtol(end,NULL,base);
+      showlist(first,begini,endi);
       continue;
     }
     if(!strcmp(command,"d\n")){
@@ -176,6 +191,17 @@ void listText(LIST *top){
     lnum++;
   }
   printf("\n");
+}
+/* show text begin to end*/
+void showlist(LIST *top,int begin,int end){
+  int index=0;
+  for(index=1;index < begin;index++){
+    top = top->NEXT;
+  }
+  for(;index <= end;index++){
+    printf("%i:%s",index,top->txtline);
+    top = top->NEXT;
+  }
 }
 /* insert single LIST into second argument */
 LIST *insertTxt(LIST *top,long insert){
